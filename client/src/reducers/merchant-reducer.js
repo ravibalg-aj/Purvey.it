@@ -6,6 +6,7 @@ import {
   USER_LOADING_PROGRESS,
   MGET_ERRORS,
   MCONN_ERROR,
+  MSET_CURRENT_USER
 } from "../actions/merchant-action";
 const isEmpty = require("is-empty");
 
@@ -68,6 +69,16 @@ export const merchant = (state = initialState, action) => {
         connError: err,
       };
     }
+
+    case MSET_CURRENT_USER:{
+      const{merchantData} = payload;
+      return{
+        ...state,
+        isAuthenticated:true,
+        data:merchantData
+      }
+    }
+
     default: {
       return state;
     }

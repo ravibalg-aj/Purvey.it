@@ -32,7 +32,7 @@ export const registerUser = (newUser, history) => async (dispatch) => {
         if (typeof err.response !== "undefined") {
           dispatch(mGetErrors(err.response.data.errors));
         } else {
-          dispatch(mConnError(err));
+          dispatch(mConnError(JSON.stringify(err)));
         }
   }
 };
@@ -60,11 +60,11 @@ export const loginUser = (user) => (dispatch) => {
         if (typeof err.response !== "undefined") {
           dispatch(mGetErrors(err.response.data.errors));
         } else {
-          dispatch(mConnError(err));
+          dispatch(mConnError(JSON.stringify(err)));
         }
       });
   } catch (err) {
-    dispatch(mConnError(err));
+    dispatch(mConnError(JSON.stringify(err)));
   }
 };
 
@@ -77,3 +77,4 @@ export const logoutUser = () => (dispatch) => {
   // Set current user to empty object {} which will set isAuthenticated to false
   dispatch(mLogoutUser());
 };
+

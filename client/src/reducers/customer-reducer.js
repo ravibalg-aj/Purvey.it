@@ -7,6 +7,12 @@ import {
   LOADING_ON,
   LOADING_OFF,
   CCONN_ERROR,
+  CSET_CURRENT_USER,
+  CADD_TO_CART,
+  CPRODUCT_VIEW,
+  CREMOVE_FROM_CART,
+  CMAKE_ORDER,
+  CGET_ORDERS,
 } from "../actions/customer-action";
 const isEmpty = require("is-empty");
 
@@ -17,6 +23,8 @@ const initialState = {
   data: {},
   errors: {},
   connError: {},
+  productView: {},
+  orderDetails: [],
 };
 
 export const customer = (state = initialState, action) => {
@@ -78,10 +86,63 @@ export const customer = (state = initialState, action) => {
     }
 
     case CCONN_ERROR: {
-      const {err} = payload;
+      const { err } = payload;
       return {
         ...state,
         connError: err,
+      };
+    }
+
+    case CSET_CURRENT_USER: {
+      const { customerData } = payload;
+      return {
+        ...state,
+        isAuthenticated: true,
+        data: customerData.data,
+      };
+    }
+
+    case CADD_TO_CART: {
+      const { product } = payload;
+      return {
+        ...state,
+        data: { ...state.data, cart: state.data.cart.concat(product) },
+      };
+    }
+
+    case CPRODUCT_VIEW: {
+      const { product } = payload;
+      return {
+        ...state,
+        productView: product,
+      };
+    }
+
+    case CREMOVE_FROM_CART: {
+      const { product: removedProduct } = payload;
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          cart: state.data.cart.filter(
+            (product) => product._id !== removedProduct._id
+          ),
+        },
+      };
+    }
+
+    case CMAKE_ORDER: {
+      return {
+        ...state,
+        data: { ...state.data, cart: [] },
+      };
+    }
+
+    case CGET_ORDERS: {
+      const { orders } = payload;
+      return {
+        ...state,
+        orderDetails: orders,
       };
     }
 

@@ -12,9 +12,9 @@ import Box from "@material-ui/core/Box";
 import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 
-import { loginUser, clearErrors } from "../../../thunks/customer-thunk";
+import { loginUser, clearErrors } from "../../../../thunks/customer-thunk";
 import { connect } from "react-redux";
-import { getMerchantData,getErrors} from '../../../selectors/customer-selector'
+import { getMerchantData,getErrors} from '../../../../selectors/customer-selector'
 
 
 const useStyles = makeStyles((theme) => ({

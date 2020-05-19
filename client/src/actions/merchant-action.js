@@ -36,3 +36,9 @@ export const mConnError = (err) => ({
   type: MCONN_ERROR,
   payload: { err },
 });
+
+export const MSET_CURRENT_USER = "MSET_CURRENT_USER";
+export const mSetCurrentUser = (merchantData) => ({
+  type:MSET_CURRENT_USER,
+  payload: { merchantData },
+})

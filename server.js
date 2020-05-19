@@ -6,6 +6,8 @@ const passport = require("passport");
 const merchantRoute = require("./routes/merchant-routes")
 const customerRoute = require("./routes/customer-route")
 const productRoute = require("./routes/products-route")
+const shippingRoute = require("./routes/shipping-route")
+
 const cors = require('cors') 
 
 const app = express();
@@ -34,16 +36,17 @@ mongoose
     .catch(err => console.log(err));
 
 
-//     // Passport middleware
-// app.use(passport.initialize());
+    // Passport middleware
+app.use(passport.initialize());
 
-// // Passport config
-// require("./config/passport")(passport);
+// Passport config
+require("./config/passport")(passport);
 
 // Routes
 app.use("/api", merchantRoute);
 app.use("/api", customerRoute);
 app.use("/api", productRoute);
+app.use("/api", shippingRoute)
 
 const port = process.env.PORT || 5000; // process.env.port is Heroku's port if you choose to deploy the app there
 

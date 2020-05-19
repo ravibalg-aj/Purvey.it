@@ -1,6 +1,7 @@
 const express = require("express");
 const router = express.Router();
 
+
 const merchantCtrl = require('../controller/merchants-ctrl')
 
 // @route POST api/merchant/register

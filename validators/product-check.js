@@ -8,6 +8,7 @@ module.exports = function validateProductInput(data) {
     data.name = isEmpty(data.name) ? "" : data.name;
     data.description = isEmpty(data.description) ? "" : data.description;
     data.price = isEmpty(data.price) ? "" : data.price;
+    data.imageUrls = isEmpty(data.imageUrls) ? "" : data.imageUrls;
 
     //name checks
     if (Validator.isEmpty(data.name)) {
@@ -23,6 +24,9 @@ module.exports = function validateProductInput(data) {
         errors.price = "Price field is required"
     }
 
+    if(isEmpty(data.imageUrls)){
+        errors.imageUrls = "Image URLs field is required"
+    }
 
     return {
         errors,

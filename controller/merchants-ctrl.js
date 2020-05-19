@@ -131,4 +131,6 @@ getMerchant = async (req, res) => {
   });
 };
 
+
+
 module.exports = { createMerchant, doLogin, getMerchant };

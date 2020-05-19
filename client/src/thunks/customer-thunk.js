@@ -6,7 +6,13 @@ import {
   cLogoutCustomer,
   cLoadingOn,
   cLoadingOff,
-  cConnError
+  cConnError,
+  cSetCurrentUser,
+  cAddToCart,
+  cProductView,
+  cRemoveFromCart,
+  cMakeOrder,
+  cGetOrders
 } from "../actions/customer-action";
 
 import axios from "axios";
@@ -17,22 +23,21 @@ export const loadMerchantData = (brandName) => async (dispatch) => {
   dispatch(cLoadingOn());
   try {
     axios
-      .get(`http://localhost:5000/api/merchant/${brandName}`)
+      .get(`http://localhost:5000/api/merchant/${brandName}`, { timeout: 6000 })
       .then((res) => {
         dispatch(cLoadMerchant(res.data));
         dispatch(cLoadingOff());
       })
       .catch((err) => {
-        console.log(err.response);
+        console.log(err);
         if (typeof err.response !== "undefined") {
-          dispatch(cGetErrors(err.response.data.errors));
+          dispatch(cConnError(err.response.data.errors));
         } else {
           dispatch(cConnError(err));
         }
       });
   } catch (err) {
     dispatch(cConnError(err));
-
   }
 };
 
@@ -46,7 +51,7 @@ export const registerUser = (newUser, merchantid, fn) => async (dispatch) => {
       .then((res) => {
         console.log(res.data.data);
 
-        dispatch(cCreateCustomer(res.data.data));
+        //dispatch(cCreateCustomer(res.data.data));
         dispatch(cGetErrors({}));
         fn();
         //history.push("/signin"); //redirection to login if register successful!
@@ -77,10 +82,12 @@ export const loginUser = (user, merchantid) => async (dispatch) => {
         // Decode token to get user data
         const decoded = jwt_decode(token);
         // Set current user\
-        dispatch(cLoginCustomer(decoded));
+        //dispatch(cLoginCustomer(decoded));
+        dispatch(setCurrentUser(decoded.id));
         dispatch(cGetErrors({}));
       })
       .catch((err) => {
+        console.log(err);
         console.log(err.response);
         if (typeof err.response !== "undefined") {
           dispatch(cGetErrors(err.response.data.errors));
@@ -105,4 +112,137 @@ export const logoutUser = () => (dispatch) => {
 
 export const clearErrors = () => async (dispatch) => {
   dispatch(cGetErrors({}));
+};
+
+export const setCurrentUser = (custId) => async (dispatch) => {
+  dispatch(cLoadingOn());
+  try {
+    axios
+      .get(`http://localhost:5000/api/customer/${custId}`)
+      .then((res) => {
+        console.log(res.data.data);
+        dispatch(cSetCurrentUser(res.data));
+        dispatch(cLoadingOff());
+      })
+      .catch((err) => {
+        console.log(err.message);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const addToCart = (product, custId) => async (dispatch) => {
+  try {
+    axios
+      .post(`http://localhost:5000/api/customer/cart/${custId}`, product)
+      .then((res) => {
+        dispatch(cAddToCart(res.data.data));
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const getSpecificProduct = (brandName, productId) => async (
+  dispatch
+) => {
+  dispatch(cLoadingOn());
+  try {
+    axios
+      .get(`http://localhost:5000/api/product/${brandName}/${productId}`)
+      .then((res) => {
+        console.log(res.data.data);
+        dispatch(cProductView(res.data.data));
+        dispatch(cLoadingOff());
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cConnError(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const removeFromCart = (custId, productId) => async (dispatch) => {
+  try {
+    axios
+      .delete(`http://localhost:5000/api/customer/cart/${custId}/${productId}`)
+      .then((res) => {
+        dispatch(cRemoveFromCart(res.data.data));
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const makeOrder = (orderDetails) => async (dispatch) => {
+  try {
+    console.log(orderDetails);
+
+    axios
+      .post("http://localhost:5000/api/shipping", orderDetails)
+      .then((res) => {
+        console.log(res.data.data);
+        dispatch(cMakeOrder());
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const loadOrderDetails = (merchantId, customerId) => async (dispatch) => {
+  try {
+    axios
+      .get(
+        `http://localhost:5000/api/customer/orders/${merchantId}/${customerId}`
+      )
+      .then((res) => {
+        dispatch(cGetOrders(res.data.data))
+      })
+      .catch((err) => {
+        console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
 };

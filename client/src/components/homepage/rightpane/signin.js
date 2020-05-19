@@ -73,7 +73,7 @@ const SignIn = ({merchant, onSubmitPressed, errors}) => {
   
   useEffect(() => {
     if(merchant._id){
-      history.push(`/merchant/${merchant.brandName}`)
+      history.push(`/m/${merchant.brandName}`)
     }
   },[merchant])
 

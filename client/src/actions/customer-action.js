@@ -45,3 +45,39 @@ export const cConnError = (err) => ({
   type: CCONN_ERROR,
   payload: { err },
 });
+
+export const CSET_CURRENT_USER = "CSET_CURRENT_USER";
+export const cSetCurrentUser = (customerData) => ({
+  type: CSET_CURRENT_USER,
+  payload: { customerData },
+});
+
+export const CADD_TO_CART = "CADD_TO_CART";
+export const cAddToCart = (product) => ({
+  type: CADD_TO_CART,
+  payload: { product },
+});
+
+export const CPRODUCT_VIEW = "CPRODUCT_VIEW";
+export const cProductView = (product) => ({
+  type: CPRODUCT_VIEW,
+  payload: { product },
+});
+
+export const CREMOVE_FROM_CART = "CREMOVE_FROM_CART";
+export const cRemoveFromCart = (product) => ({
+  type: CREMOVE_FROM_CART,
+  payload: { product },
+});
+
+export const CMAKE_ORDER = "CMAKE_ORDER";
+export const cMakeOrder = () => ({
+  type: CMAKE_ORDER,
+  payload: {},
+});
+
+export const CGET_ORDERS = "CGET_ORDERS";
+export const cGetOrders = (orders) => ({
+  type: CGET_ORDERS,
+  payload: { orders },
+});

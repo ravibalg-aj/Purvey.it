@@ -6,9 +6,12 @@ const keys = require("../config/keys");
 // Load input validation
 const validateRegisterInput = require("../validators/register-customer");
 const validateLoginInput = require("../validators/login-merchant");
+const isEmpty = require("is-empty");
 
 //merchants model loader
 const customers = require("../models/customers");
+const shipping = require("../models/shipping");
+const merchants = require("../models/merchants");
 
 createCustomer = async (req, res) => {
   body = req.body;
@@ -72,21 +75,22 @@ doLogin = async (req, res) => {
   const password = req.body.password;
 
   customers.findOne(
-    { $and: [{ email: req.body.email }, { merchantId: merchantId }] },
+    { $and: [{ email: email }, { merchantId: merchantId }] },
     (err, customer) => {
       if (err) {
         res.status(400).json({ errors: err });
       } else {
         if (!customer) {
           res.status(400).json({ errors: { email: "Customer not found!" } });
-        } else {
+        }
+        if (!isEmpty(customer)) {
           bcrypt.compare(password, customer.password).then((isMatch) => {
             if (isMatch) {
               //merchant matcher
               //creating payload
               const payload = {
                 id: customer._id,
-                email: customer.name,
+                email: customer.email,
                 merchantId: customer.merchantId,
               };
 
@@ -124,7 +128,7 @@ getMerchantCustomers = async (req, res) => {
 
   customers.find(
     { merchantId: merchantId },
-    { wishlist: 0 },
+    { cart: 0, password: 0 },
     (err, customers) => {
       if (err) {
         res.status(400).json({ errors: err });
@@ -141,17 +145,51 @@ getMerchantCustomers = async (req, res) => {
 getCustomer = async (req, res) => {
   customerId = req.params.id;
 
-  customers.findById({ _id: customerId }, (err, customer) => {
+  customers.findById({ _id: customerId }, { password: 0 }, (err, customer) => {
     if (err) {
       res.status(400).json({ errors: err });
     }
 
     if (!customer) {
       res.status(400).json({ errors: "Customer not found" });
+    } else {
+      res.json({ data: customer });
     }
-
-    res.json({ data: customer });
   });
 };
 
-module.exports = { createCustomer, doLogin, getMerchantCustomers, getCustomer };
+getOrders = async (req, res) => {
+  const merchantId = req.params.id;
+  const customerId = req.params.customerId;
+
+  merchants.findOne({ brandName: merchantId }, (err, merchant) => {
+    if (err) {
+      res.status(400).json({ errors: err });
+    }
+    if (!merchant) {
+      res.status(404).json({ errors: "Merchant not found" });
+    }
+
+    shipping.find(
+      { $and: [{ to: merchant._id }, { from: customerId }] },
+      (err, shipping) => {
+        if (err) {
+          res.status(400).json({ errors: err });
+        }
+        if (!shipping) {
+          res.status(404).json({ errors: "No shipping Found" });
+        } else {
+          res.json({ data: shipping });
+        }
+      }
+    );
+  });
+};
+
+module.exports = {
+  createCustomer,
+  doLogin,
+  getMerchantCustomers,
+  getCustomer,
+  getOrders,
+};

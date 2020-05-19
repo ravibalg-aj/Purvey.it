@@ -20,7 +20,7 @@ const CustomerSchema = new Schema({
         required: true,
         default:""
     },
-    wishlist:[ProductsSchema],
+    cart:[ProductsSchema],
     merchantId:{
         type:mongoose.ObjectId,
         required:true,    

@@ -12,7 +12,11 @@ router.post("/product/:id",productCtrl.createProduct);
 // @route POST api/customer/wishlist/{customerId}
 // @desc Add customer Wishlist
 // @access Public
-router.post("/customer/wishlist/:id",productCtrl.addWishlist);
+router.post("/customer/cart/:id",productCtrl.addWishlist);
     
+
+router .get("/product/:id/:productId",productCtrl.getSpecificProduct);
+
+router.delete("/customer/cart/:id/:productId",productCtrl.removeFromCart)
 
 module.exports = router

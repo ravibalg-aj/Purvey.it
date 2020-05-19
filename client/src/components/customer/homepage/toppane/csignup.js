@@ -13,8 +13,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 
 import { connect } from "react-redux";
-import { registerUser, clearErrors } from "../../../thunks/customer-thunk";
-import { getMerchantData,getErrors,getCustomerData} from '../../../selectors/customer-selector'
+import { registerUser, clearErrors } from "../../../../thunks/customer-thunk";
+import { getMerchantData,getErrors,getCustomerData} from '../../../../selectors/customer-selector'
 
 const useStyles = makeStyles((theme) => ({
   dialogbox: {
