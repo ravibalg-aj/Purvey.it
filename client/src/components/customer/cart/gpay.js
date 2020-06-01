@@ -203,16 +203,16 @@ function getGoogleTransactionInfo() {
  *
  * @see @link https://developers.google.com/pay/api/web/reference/client#prefetchPaymentData|prefetchPaymentData()}
  */
-function prefetchGooglePaymentData() {
-  const paymentDataRequest = getGooglePaymentDataRequest();
-  // transactionInfo must be set but does not affect cache
-  paymentDataRequest.transactionInfo = {
-    totalPriceStatus: "NOT_CURRENTLY_KNOWN",
-    currencyCode: "USD",
-  };
-  const paymentsClient = window.myownglobals.paymentsClient;
-  paymentsClient.prefetchPaymentData(paymentDataRequest);
-}
+// function prefetchGooglePaymentData() {
+//   const paymentDataRequest = getGooglePaymentDataRequest();
+//   // transactionInfo must be set but does not affect cache
+//   paymentDataRequest.transactionInfo = {
+//     totalPriceStatus: "NOT_CURRENTLY_KNOWN",
+//     currencyCode: "USD",
+//   };
+//   const paymentsClient = window.myownglobals.paymentsClient;
+//   paymentsClient.prefetchPaymentData(paymentDataRequest);
+// }
 
 /**
  * Show Google Pay payment sheet when Google Pay payment button is clicked
@@ -279,8 +279,7 @@ const Gpay = ({
         // show error in developer console for debugging
         console.error(err);
       });
-  }, []);
-
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
   /**
    * Add a Google Pay purchase button alongside an existing checkout button
    *
@@ -358,7 +357,7 @@ const Gpay = ({
       <CustomSnackBar
         open={openSnackBar}
         handleClose={handleSnackBarClose}
-        message={"Thank You for shopping with us! Cart will ne emptied!"}
+        message={"Thank You for shopping with us! Cart will be emptied!"}
       />
     </div>
   );

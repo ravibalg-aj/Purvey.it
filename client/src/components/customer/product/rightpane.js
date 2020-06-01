@@ -10,7 +10,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
     justifyContent: "center",
     alignSelf: "flex-start",
-    position: "-webkit-sticky" /* for Safari */,
+    // position: "-webkit-sticky" /* for Safari */,
     position: "sticky",
     top: 0,
   },
@@ -20,12 +20,10 @@ const useStyles = makeStyles((theme) => ({
     transform: "translateZ(0)",
   },
   imgTag: {
-    objectFit: "cover",
+    objectFit: "contain",
     height: "700px",
   },
-  productimage: {
-    
-  },
+  productimage: {},
 }));
 
 const RightPane = ({ product }) => {

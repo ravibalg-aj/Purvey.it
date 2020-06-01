@@ -6,58 +6,43 @@ import { Router, Switch, Route } from "react-router-dom";
 import history from "./utils/history";
 import { connect } from "react-redux";
 
-import { createMuiTheme, ThemeProvider } from "@material-ui/core/styles";
+import Customer from "./components/customer/";
 
-import CHomepage from "./components/customer/homepage/chomepage";
-import CShop from "./components/customer/shop/cshop";
-import ProductView from "./components/customer/product/productview";
-import CCart from "./components/customer/cart/ccart";
-import COrder from "./components/customer/orders/corders";
-// import MerchantPrivateRoute from "./components/privateroute/merchantroute";
+import MHomePage from "./components/merchant/mhomepage";
+import MerchantPrivateRoute from "./components/privateroute/merchantroute";
 import { getCConnectionError } from "./selectors/customer-selector";
 import { getMConnectionError } from "./selectors/merchant-selector";
 import Error from "./components/utils/error";
 
 var isEmpty = require("is-empty");
 
-const theme = createMuiTheme({
-  palette: {
-    primary: {
-      main: "#365347",
-    },
-    secondary: {
-      main: "#BA895C",
-    },
-  },
-});
-
-function App({ cConnError, mConnError }) {
+function App({
+  cConnError,
+  mConnError,
+}) {
   const content = (
     <Switch>
+      {/* <Route exact path="/merchant" component={MHomePage} /> */}
+      <MerchantPrivateRoute path="/merchant" component={MHomePage} />
       <Route exact path="/" component={Homepage} />
       <Route exact path="/:id" component={Homepage} />
-      {/* <MerchantPrivateRoute
-    path="/merchant/:id"
-    component={MerHomepage}
-  /> */}
-      <Route exact path="/m/:id" component={CHomepage} />
-      <Route exact path="/m/shop/:id" component={CShop} />
-      <Route exact path="/m/cart/:id" component={CCart} />
-      <Route exact path="/m/order/:id" component={COrder} />
-      <Route exact path="/m/product/:id/:productid" component={ProductView} />
+
+      <Route exact path="/m/:id" component={Customer} />
+      <Route exact path="/m/shop/:id" component={Customer} />
+      <Route exact path="/m/cart/:id" component={Customer} />
+      <Route exact path="/m/order/:id" component={Customer} />
+      <Route exact path="/m/product/:id/:productid" component={Customer} />
     </Switch>
   );
   return (
     <Router history={history}>
-      <ThemeProvider theme={theme}>
-        <div className="App">
-          {isEmpty(cConnError) && isEmpty(mConnError) ? (
-            content
-          ) : (
-            <Error mMsg={mConnError} cMsg={cConnError} />
-          )}
-        </div>
-      </ThemeProvider>
+      <div className="App">
+        {isEmpty(cConnError) && isEmpty(mConnError) ? (
+          content
+        ) : (
+          <Error mMsg={mConnError} cMsg={cConnError} />
+        )}
+      </div>
     </Router>
   );
 }
@@ -67,6 +52,7 @@ const mapStateToProps = (state) => ({
   mConnError: getMConnectionError(state),
 });
 
-const mapDispatchToProps = (dispatch) => ({});
+const mapDispatchToProps = (dispatch) => ({
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(App);

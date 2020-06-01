@@ -1,8 +1,6 @@
 import {
   cLoadMerchant,
-  cLoginCustomer,
   cGetErrors,
-  cCreateCustomer,
   cLogoutCustomer,
   cLoadingOn,
   cLoadingOff,
@@ -12,18 +10,20 @@ import {
   cProductView,
   cRemoveFromCart,
   cMakeOrder,
-  cGetOrders
+  cGetOrders,
+  cUpdateOrderStatus
 } from "../actions/customer-action";
 
 import axios from "axios";
 import setAuthToken from "../utils/setAuthToken";
 import jwt_decode from "jwt-decode";
 
+const localhost = "localhost";
 export const loadMerchantData = (brandName) => async (dispatch) => {
   dispatch(cLoadingOn());
   try {
     axios
-      .get(`http://localhost:5000/api/merchant/${brandName}`, { timeout: 6000 })
+      .get(`http://${localhost}:5000/api/merchant/customer/${brandName}`)
       .then((res) => {
         dispatch(cLoadMerchant(res.data));
         dispatch(cLoadingOff());
@@ -45,13 +45,11 @@ export const registerUser = (newUser, merchantid, fn) => async (dispatch) => {
   try {
     axios
       .post(
-        `http://localhost:5000/api/customer/register/${merchantid}`,
+        `http://${localhost}:5000/api/customer/register/${merchantid}`,
         newUser
       )
       .then((res) => {
         console.log(res.data.data);
-
-        //dispatch(cCreateCustomer(res.data.data));
         dispatch(cGetErrors({}));
         fn();
         //history.push("/signin"); //redirection to login if register successful!
@@ -72,7 +70,7 @@ export const registerUser = (newUser, merchantid, fn) => async (dispatch) => {
 export const loginUser = (user, merchantid) => async (dispatch) => {
   try {
     axios
-      .post(`http://localhost:5000/api/customer/login/${merchantid}`, user)
+      .post(`http://${localhost}:5000/api/customer/login/${merchantid}`, user)
       .then((res) => {
         console.log(res.data);
         const { token } = res.data;
@@ -82,7 +80,6 @@ export const loginUser = (user, merchantid) => async (dispatch) => {
         // Decode token to get user data
         const decoded = jwt_decode(token);
         // Set current user\
-        //dispatch(cLoginCustomer(decoded));
         dispatch(setCurrentUser(decoded.id));
         dispatch(cGetErrors({}));
       })
@@ -118,10 +115,11 @@ export const setCurrentUser = (custId) => async (dispatch) => {
   dispatch(cLoadingOn());
   try {
     axios
-      .get(`http://localhost:5000/api/customer/${custId}`)
+      .get(`http://${localhost}:5000/api/customer/${custId}`)
       .then((res) => {
         console.log(res.data.data);
         dispatch(cSetCurrentUser(res.data));
+        dispatch(loadOrderDetails(res.data.data.merchantId,custId));
         dispatch(cLoadingOff());
       })
       .catch((err) => {
@@ -140,7 +138,7 @@ export const setCurrentUser = (custId) => async (dispatch) => {
 export const addToCart = (product, custId) => async (dispatch) => {
   try {
     axios
-      .post(`http://localhost:5000/api/customer/cart/${custId}`, product)
+      .post(`http://${localhost}:5000/api/customer/cart/${custId}`, product)
       .then((res) => {
         dispatch(cAddToCart(res.data.data));
       })
@@ -163,7 +161,7 @@ export const getSpecificProduct = (brandName, productId) => async (
   dispatch(cLoadingOn());
   try {
     axios
-      .get(`http://localhost:5000/api/product/${brandName}/${productId}`)
+      .get(`http://${localhost}:5000/api/product/${brandName}/${productId}`)
       .then((res) => {
         console.log(res.data.data);
         dispatch(cProductView(res.data.data));
@@ -185,7 +183,9 @@ export const getSpecificProduct = (brandName, productId) => async (
 export const removeFromCart = (custId, productId) => async (dispatch) => {
   try {
     axios
-      .delete(`http://localhost:5000/api/customer/cart/${custId}/${productId}`)
+      .delete(
+        `http://${localhost}:5000/api/customer/cart/${custId}/${productId}`
+      )
       .then((res) => {
         dispatch(cRemoveFromCart(res.data.data));
       })
@@ -207,7 +207,7 @@ export const makeOrder = (orderDetails) => async (dispatch) => {
     console.log(orderDetails);
 
     axios
-      .post("http://localhost:5000/api/shipping", orderDetails)
+      .post(`http://${localhost}:5000/api/shipping`, orderDetails)
       .then((res) => {
         console.log(res.data.data);
         dispatch(cMakeOrder());
@@ -225,17 +225,45 @@ export const makeOrder = (orderDetails) => async (dispatch) => {
   }
 };
 
-export const loadOrderDetails = (merchantId, customerId) => async (dispatch) => {
+export const loadOrderDetails = (merchantId, customerId) => async (
+  dispatch
+) => {
+  dispatch(cLoadingOn());
+
   try {
     axios
       .get(
-        `http://localhost:5000/api/customer/orders/${merchantId}/${customerId}`
+        `http://${localhost}:5000/api/customer/orders/${merchantId}/${customerId}`
       )
       .then((res) => {
-        dispatch(cGetOrders(res.data.data))
+        console.log(res);
+        dispatch(cGetOrders(res.data.data));
+        dispatch(cLoadingOff());
       })
       .catch((err) => {
         console.log(err.response);
+        if (typeof err.response !== "undefined") {
+          dispatch(cGetErrors(err.response.data.errors));
+        } else {
+          dispatch(cConnError(err));
+        }
+      });
+  } catch (err) {
+    dispatch(cConnError(err));
+  }
+};
+
+export const updateOrderStatus = (orderId, status) => async (dispatch) => {
+  console.log(orderId + " " + status);
+  try {
+    axios
+      .post(`http://${localhost}:5000/api/shipping/status/${orderId}/${status}`)
+      .then((res) => {
+        console.log(res.data.data);
+        dispatch(cUpdateOrderStatus(res.data.data));
+      })
+      .catch((err) => {
+        console.log(err.message);
         if (typeof err.response !== "undefined") {
           dispatch(cGetErrors(err.response.data.errors));
         } else {

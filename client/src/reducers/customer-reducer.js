@@ -1,7 +1,5 @@
 import {
   LOAD_MERCHANT,
-  CREATE_CUSTOMER,
-  LOGIN_CUSTOMER,
   CGET_ERRORS,
   LOGOUT_CUSTOMER,
   LOADING_ON,
@@ -13,8 +11,8 @@ import {
   CREMOVE_FROM_CART,
   CMAKE_ORDER,
   CGET_ORDERS,
+  CUPDATE_ORDER_STATUS,
 } from "../actions/customer-action";
-const isEmpty = require("is-empty");
 
 const initialState = {
   isLoading: false,
@@ -39,28 +37,12 @@ export const customer = (state = initialState, action) => {
       };
     }
 
-    case CREATE_CUSTOMER: {
-      const { newCustomer } = payload;
-      return {
-        ...state,
-        data: newCustomer,
-      };
-    }
-    case LOGIN_CUSTOMER: {
-      const { customerData } = payload;
-      console.log(customerData);
-      return {
-        ...state,
-        isAuthenticated: !isEmpty(customerData),
-        data: { _id: customerData.id, name: customerData.email },
-      };
-    }
-
     case LOGOUT_CUSTOMER: {
       return {
         ...state,
         isAuthenticated: false,
         data: {},
+        orderDetails: [],
       };
     }
     case CGET_ERRORS: {
@@ -143,6 +125,17 @@ export const customer = (state = initialState, action) => {
       return {
         ...state,
         orderDetails: orders,
+      };
+    }
+
+    case CUPDATE_ORDER_STATUS: {
+      const { order: updatedOrder } = payload;
+      state.orderDetails = state.orderDetails.filter(
+        (order) => order._id !== updatedOrder._id
+      );
+      return {
+        ...state,
+        orderDetails: state.orderDetails.concat(updatedOrder),
       };
     }
 

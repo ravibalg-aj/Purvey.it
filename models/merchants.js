@@ -1,7 +1,8 @@
 const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 const ProductsSchema = require("./products").schema;
-const CustomersSchema = require("./customers").schema;
+const StorySchema = require("./story").schema;
+
 
 // Create Customers Schema
 const MerchantSchema = new Schema({
@@ -13,14 +14,14 @@ const MerchantSchema = new Schema({
   email: {
     type: String,
     required: true,
-    unique:true,
+    unique: true,
   },
   password: {
     type: String,
     required: true,
   },
-  products:[ProductsSchema],
-  
+  products: [ProductsSchema],
+  story: StorySchema,
 });
 
 module.exports = mongoose.model("merchants", MerchantSchema);

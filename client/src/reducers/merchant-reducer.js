@@ -1,14 +1,17 @@
 import {
-  CREATE_USER,
-  LOGIN_USER,
   LOGOUT_USER,
   USER_LOADING_SUCCESS,
   USER_LOADING_PROGRESS,
   MGET_ERRORS,
   MCONN_ERROR,
-  MSET_CURRENT_USER
+  MSET_CURRENT_USER,
+  MADD_PRODUCT,
+  MUPDATE_PRODUCT,
+  MADD_STORY,
+  MGET_ORDERS,
+  MUPDATE_ORDER_STATUS,
 } from "../actions/merchant-action";
-const isEmpty = require("is-empty");
+// const isEmpty = require("is-empty");
 
 const initialState = {
   isLoading: false,
@@ -16,28 +19,15 @@ const initialState = {
   data: {},
   errors: {},
   connError: {},
+  orderDetails: [],
 };
 
 export const merchant = (state = initialState, action) => {
   const { type, payload } = action;
 
   switch (type) {
-    case CREATE_USER: {
-      const { user } = payload;
-      return { ...state, data: user };
-    }
-
-    case LOGIN_USER: {
-      const { user } = payload;
-      return {
-        ...state,
-        isAuthenticated: !isEmpty(user),
-        data: { _id: user.id, brandName: user.brandName },
-      };
-    }
-
     case LOGOUT_USER: {
-      return state;
+      return { ...state, isAuthenticated: false, data: {} };
     }
 
     case USER_LOADING_PROGRESS: {
@@ -63,20 +53,69 @@ export const merchant = (state = initialState, action) => {
     }
 
     case MCONN_ERROR: {
-      const {err} = payload;
+      const { err } = payload;
       return {
         ...state,
         connError: err,
       };
     }
 
-    case MSET_CURRENT_USER:{
-      const{merchantData} = payload;
-      return{
+    case MSET_CURRENT_USER: {
+      const { merchantData } = payload;
+      return {
         ...state,
-        isAuthenticated:true,
-        data:merchantData
-      }
+        isAuthenticated: true,
+        data: merchantData,
+      };
+    }
+
+    case MADD_PRODUCT: {
+      const { product } = payload;
+      return {
+        ...state,
+        data: { ...state.data, products: state.data.products.concat(product) },
+      };
+    }
+
+    case MUPDATE_PRODUCT: {
+      const { product: updatedProduct } = payload;
+      state.data.products = state.data.products.filter(
+        (product) => product._id !== updatedProduct._id
+      );
+      return {
+        ...state,
+        data: {
+          ...state.data,
+          products: state.data.products.concat(updatedProduct),
+        },
+      };
+    }
+
+    case MADD_STORY: {
+      const { story: newStory } = payload;
+      return {
+        ...state,
+        data: { ...state.data, story: newStory },
+      };
+    }
+
+    case MGET_ORDERS: {
+      const { orders } = payload;
+      return {
+        ...state,
+        orderDetails: orders,
+      };
+    }
+
+    case MUPDATE_ORDER_STATUS: {
+      const { order: updatedOrder } = payload;
+      state.orderDetails = state.orderDetails.filter(
+        (order) => order._id !== updatedOrder._id
+      );
+      return {
+        ...state,
+        orderDetails: state.orderDetails.concat(updatedOrder),
+      };
     }
 
     default: {

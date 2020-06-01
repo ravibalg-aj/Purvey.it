@@ -65,7 +65,11 @@ const LeftPane = ({ product, onAddButtonPressed, customer, customerData }) => {
           <Typography variant="h3">{product.name}</Typography>
         </Box>
         <Box className={classes.productdescription}>
-          <Typography variant="body1">{product.description}</Typography>
+          <Typography variant="body1">
+          <Box
+              dangerouslySetInnerHTML={{ __html: product.description}}
+            ></Box>
+          </Typography>
         </Box>
         <Box className={classes.productprice}>
           <Typography variant="h6">{"₹ " + product.price}</Typography>

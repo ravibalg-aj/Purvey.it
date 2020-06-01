@@ -6,7 +6,10 @@ import Button from "@material-ui/core/Button";
 import Typography from "@material-ui/core/Typography";
 
 import { connect } from "react-redux";
-import { getMerchantProducts, getMerchantData } from "../../../selectors/customer-selector";
+import {
+  getMerchantProducts,
+  getMerchantData,
+} from "../../../selectors/customer-selector";
 import Product from "../product/productbox";
 
 import { Link } from "react-router-dom";
@@ -40,16 +43,18 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const CPopularProducts = ({ products,merchantData }) => {
+const CPopularProducts = ({ products, merchantData }) => {
   const classes = useStyles();
 
   const populars = [];
   for (var i = 0; i < 2; i++) {
-    populars.push(
-      <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
-        <Product product={products[i]}/>
-      </Grid>
-    );
+    if (i < products.length) {
+      populars.push(
+        <Grid item xl={6} lg={6} md={6} sm={12} xs={12}>
+          <Product product={products[i]} />
+        </Grid>
+      );
+    }
   }
   return (
     <Box className={classes.root}>

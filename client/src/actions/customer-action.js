@@ -1,19 +1,7 @@
-export const CREATE_CUSTOMER = "CREATE_CUSTOMER";
-export const cCreateCustomer = (newCustomer) => ({
-  type: CREATE_CUSTOMER,
-  payload: { newCustomer },
-});
-
 export const LOAD_MERCHANT = "LOAD_MERCHANT";
 export const cLoadMerchant = (merchantData) => ({
   type: LOAD_MERCHANT,
   payload: { merchantData },
-});
-
-export const LOGIN_CUSTOMER = "LOGIN_CUSTOMER";
-export const cLoginCustomer = (customerData) => ({
-  type: LOGIN_CUSTOMER,
-  payload: { customerData },
 });
 
 export const CGET_ERRORS = "CGET_ERRORS";
@@ -81,3 +69,10 @@ export const cGetOrders = (orders) => ({
   type: CGET_ORDERS,
   payload: { orders },
 });
+
+export const CUPDATE_ORDER_STATUS = "CUPDATE_ORDER_STATUS";
+export const cUpdateOrderStatus = (order) => ({
+  type: CUPDATE_ORDER_STATUS,
+  payload: { order },
+});
+

@@ -47,11 +47,11 @@ const useStyles = makeStyles((theme) => ({
     transform: "translateZ(0)",
   },
   imgTag: {
-    objectFit: "cover",
+    objectFit: "contain",
     height: "600px",
   },
   productinfo: {
-    fontSize:24,
+    fontSize: 24,
     fontFamily: "'Spectral', serif",
     letterSpacing: "1px",
   },
@@ -75,6 +75,7 @@ const Product = ({
     }
     setOpenAlert(false);
   };
+
   return (
     <Container component="main" maxWidth="md">
       <div className={classes.paper}>
@@ -82,32 +83,32 @@ const Product = ({
           to={`/m/product/${merchantData.brandName}/${product._id}`}
           style={{ textDecoration: "none", color: "inherit" }}
         >
-        <Box className={classes.imageBox}>
-          <GridList className={classes.gridList} cols={1} cellHeight="auto">
-            {product.imageUrls.map((imageUrl, i) => (
-              <GridListTile key={i}>
-                <img
-                  src={imageUrl}
-                  alt="product img"
-                  className={classes.imgTag}
-                />
-              </GridListTile>
-            ))}
-          </GridList>
-        </Box>
+          <Box className={classes.imageBox}>
+            <GridList className={classes.gridList} cols={1} cellHeight="auto">
+              {product.imageUrls.map((imageUrl, i) => (
+                <GridListTile key={i} className={"imgFullWidth"}>
+                  <img
+                    src={imageUrl}
+                    alt="product img"
+                    className={classes.imgTag}
+                  />
+                </GridListTile>
+              ))}
+            </GridList>
+          </Box>
 
-        <Box pl={3} pr={3} className={classes.nameRow}>
-          <Box>
-            <Typography className={classes.productinfo} variant="subtitle1">
-              {product.name}
-            </Typography>
+          <Box pl={3} pr={3} className={classes.nameRow}>
+            <Box>
+              <Typography className={classes.productinfo} variant="subtitle1">
+                {product.name}
+              </Typography>
+            </Box>
+            <Box>
+              <Typography className={classes.productinfo} variant="subtitle1">
+                ₹{product.price}
+              </Typography>
+            </Box>
           </Box>
-          <Box>
-            <Typography className={classes.productinfo} variant="subtitle1">
-              ₹{product.price}
-            </Typography>
-          </Box>
-        </Box>
         </Link>
 
         <Box pl={3} pr={3} className={classes.addtoCardRow}>

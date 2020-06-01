@@ -1,7 +1,5 @@
 import React, { useEffect } from "react";
-import {
-  makeStyles,
-} from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 
 import CTopPane from "./toppane/ctoppane";
@@ -23,6 +21,8 @@ import COurStory from "./courstory";
 import {
   getMerchantData,
   getCustomer,
+  getCustomerData,
+  getMerchantProducts,
 } from "../../../selectors/customer-selector";
 
 import setAuthToken from "../../../utils/setAuthToken";
@@ -43,6 +43,15 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: "center",
     padding: theme.spacing(2),
     letterSpacing: "2px",
+    fontFamily: "'Caveat', cursive;",
+  },
+  noproducts: {
+    height: "100vh",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    border:"1px solid #365347"
   },
 }));
 
@@ -54,28 +63,36 @@ const CHomepage = ({
   customer,
   clogoutUser,
   csetCurrentUser,
+  customerData,
+  products,
 }) => {
   useEffect(() => {
-    runOnLoad(match.params.id);
-    // Check for token to keep user logged in
-    if (localStorage.cjwtToken) {
-      // Set auth token header auth
-      const token = localStorage.cjwtToken;
-      setAuthToken(token);
-      // Decode token and get user info and exp
-      const decoded = jwt_decode(token);
-      console.log(decoded);
-      // Set user and isAuthenticated
-      csetCurrentUser(decoded.id);
-      // Check for expired token
-      const currentTime = Date.now() / 1000; // to get in milliseconds
-      if (decoded.exp < currentTime) {
-        // Logout user
-        clogoutUser();
-        // Redirect to login
+    if (isEmpty(merchantData)) {
+      runOnLoad(match.params.id);
+    }
+    if (isEmpty(customerData)) {
+      // Check for token to keep user logged in
+      if (localStorage.cjwtToken) {
+        // Set auth token header auth
+        const token = localStorage.cjwtToken;
+        setAuthToken(token);
+        // Decode token and get user info and exp
+        const decoded = jwt_decode(token);
+        console.log(decoded);
+        // Set user and isAuthenticated
+        if(decoded.brandName === match.params.id){
+        csetCurrentUser(decoded.id);
+        // Check for expired token
+        const currentTime = Date.now() / 1000; // to get in milliseconds
+        if (decoded.exp < currentTime) {
+          // Logout user
+          clogoutUser();
+          // Redirect to login
+        }
+      }
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classes = useStyles();
 
@@ -89,12 +106,24 @@ const CHomepage = ({
           />
         </Grid>
         <Grid item xs={12}>
-          <Typography variant="h3" className={classes.firstphrase}>
-            Replenish your hair with much <b>GLOW</b>
+          <Typography variant="h2" className={classes.firstphrase}>
+            Feel the <b>Quality</b>
           </Typography>
         </Grid>
         <Grid item xs={12}>
-          <CPopularProducts />
+          {!isEmpty(products) ? (
+            <CPopularProducts />
+          ) : (
+            <Box className={classes.noproducts}>
+              <Typography variant="h5">
+                {"In demand prodcuts will be displayed here!"}
+                <br></br>
+                {"Merchant have not uploaded the products Yet!"}
+                <br></br>
+                {"Comeback soon to view our products!"}
+              </Typography>
+            </Box>
+          )}
         </Grid>
         <Grid item xs={12}>
           <COurStory />
@@ -122,6 +151,8 @@ const CHomepage = ({
 const mapStateToProps = (state) => ({
   merchantData: getMerchantData(state),
   customer: getCustomer(state),
+  customerData: getCustomerData(state),
+  products: getMerchantProducts(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

@@ -17,6 +17,7 @@ import {
 import {
   getCustomerData,
   getCustomer,
+  getMerchantData,
 } from "../../../selectors/customer-selector";
 
 import CTopPane from "../../customer/homepage/toppane/ctoppane";
@@ -65,29 +66,34 @@ const ProductView = ({
   customerData,
   clogoutUser,
   csetCurrentUser,
+  merchantData,
 }) => {
   const classes = useStyles();
 
   useEffect(() => {
     getProduct(match.params.id, match.params.productid);
-    if (localStorage.cjwtToken) {
-      // Set auth token header auth
-      const token = localStorage.cjwtToken;
-      setAuthToken(token);
-      // Decode token and get user info and exp
-      const decoded = jwt_decode(token);
-      console.log(decoded);
-      // Set user and isAuthenticated
-      csetCurrentUser(decoded.id);
-      // Check for expired token
-      const currentTime = Date.now() / 1000; // to get in milliseconds
-      if (decoded.exp < currentTime) {
-        // Logout user
-        clogoutUser();
-        // Redirect to login
+    if (isEmpty(customerData)) {
+      if (localStorage.cjwtToken) {
+        // Set auth token header auth
+        const token = localStorage.cjwtToken;
+        setAuthToken(token);
+        // Decode token and get user info and exp
+        const decoded = jwt_decode(token);
+        console.log(decoded);
+        // Set user and isAuthenticated
+        if (decoded.brandName === match.params.id) {
+          csetCurrentUser(decoded.id);
+          // Check for expired token
+          const currentTime = Date.now() / 1000; // to get in milliseconds
+          if (decoded.exp < currentTime) {
+            // Logout user
+            clogoutUser();
+            // Redirect to login
+          }
+        }
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const content = (
     <Box className={classes.root}>
@@ -151,6 +157,7 @@ const mapStateToProps = (state) => ({
   product: getProductView(state),
   customer: getCustomer(state),
   customerData: getCustomerData(state),
+  merchantData: getMerchantData(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

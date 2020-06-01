@@ -40,6 +40,8 @@
   },
   "devDependencies": {
     "history": "^4.10.1",
+    "react-images-upload": "^1.2.8",
+    "react-lottie": "^1.2.3",
     "react-router-global-history": "^1.1.0",
     "redux-devtools-extension": "^2.13.8"
   }

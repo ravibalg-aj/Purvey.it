@@ -23,44 +23,56 @@ createCustomer = async (req, res) => {
     return res.status(400).json({ errors: errors });
   }
 
-  customers.findOne(
-    { $and: [{ email: body.email }, { merchantId: merchantId }] },
-    (err, customer) => {
-      if (err) {
-        res.status(400).json({ errors: err });
-      }
+  merchants.findOne({ _id: merchantId }, (err, merchant) => {
+    if (err) {
+      res.status(400).json({ errors: err });
+    }
 
-      if (customer) {
-        res.status(400).json({ errors: { email: "Customer already exists" } });
-      } else {
-        const newCustomer = new customers({
-          name: body.name,
-          email: body.email,
-          password: body.password,
-          merchantId: merchantId,
-        });
-
-        bcrypt.genSalt(10, (err, salt) => {
+    if (!merchant) {
+      res.status(400).json({ errors: "Merchant not found" });
+    } else {
+      customers.findOne(
+        { $and: [{ email: body.email }, { merchantId: merchantId }] },
+        (err, customer) => {
           if (err) {
             res.status(400).json({ errors: err });
           }
-          bcrypt.hash(newCustomer.password, salt, (err, hash) => {
-            if (err) {
-              res.status(400).json({
-                errors: err,
-              });
-            }
 
-            newCustomer.password = hash;
-            newCustomer
-              .save()
-              .then((customer) => res.json({ data: customer }))
-              .catch((err) => res.status(400).json({ errors: err }));
-          });
-        });
-      }
+          if (customer) {
+            res
+              .status(400)
+              .json({ errors: { email: "Customer already exists" } });
+          } else {
+            const newCustomer = new customers({
+              name: body.name,
+              email: body.email,
+              password: body.password,
+              merchantId: merchant.brandName,
+            });
+
+            bcrypt.genSalt(10, (err, salt) => {
+              if (err) {
+                res.status(400).json({ errors: err });
+              }
+              bcrypt.hash(newCustomer.password, salt, (err, hash) => {
+                if (err) {
+                  res.status(400).json({
+                    errors: err,
+                  });
+                }
+
+                newCustomer.password = hash;
+                newCustomer
+                  .save()
+                  .then((customer) => res.json({ data: customer }))
+                  .catch((err) => res.status(400).json({ errors: err }));
+              });
+            });
+          }
+        }
+      );
     }
-  );
+  });
 };
 
 doLogin = async (req, res) => {
@@ -73,54 +85,65 @@ doLogin = async (req, res) => {
 
   const email = req.body.email;
   const password = req.body.password;
-
-  customers.findOne(
-    { $and: [{ email: email }, { merchantId: merchantId }] },
-    (err, customer) => {
-      if (err) {
-        res.status(400).json({ errors: err });
+  merchants.findOne({ _id: merchantId }, (err, merchant) => {
+    if (err) {
+      res.status(400).json({ errors: err });
+    } else {
+      if (!merchant) {
+        res.status(400).json({ errors: { email: "Merchant not found!" } });
       } else {
-        if (!customer) {
-          res.status(400).json({ errors: { email: "Customer not found!" } });
-        }
-        if (!isEmpty(customer)) {
-          bcrypt.compare(password, customer.password).then((isMatch) => {
-            if (isMatch) {
-              //merchant matcher
-              //creating payload
-              const payload = {
-                id: customer._id,
-                email: customer.email,
-                merchantId: customer.merchantId,
-              };
-
-              jwt.sign(
-                payload,
-                keys.secretOrKey,
-                {
-                  expiresIn: 31556926, // 1 year in seconds
-                },
-                (err, token) => {
-                  if (err) {
-                    res.status(400).json({ errors: err });
-                  }
-
-                  res.json({
-                    success: true,
-                    token: "Bearer " + token,
-                  });
-                }
-              );
+        customers.findOne(
+          { $and: [{ email: email }, { merchantId: merchant.brandName }] },
+          (err, customer) => {
+            if (err) {
+              res.status(400).json({ errors: err });
             } else {
-              return res
-                .status(400)
-                .json({ errors: { password: "Password incorrect" } });
+              if (!customer) {
+                res
+                  .status(400)
+                  .json({ errors: { email: "Customer not found!" } });
+              }
+              if (!isEmpty(customer)) {
+                bcrypt.compare(password, customer.password).then((isMatch) => {
+                  if (isMatch) {
+                    //merchant matcher
+                    //creating payload
+                    const payload = {
+                      id: customer._id,
+                      email: customer.email,
+                      brandName: customer.merchantId,
+                    };
+
+                    jwt.sign(
+                      payload,
+                      keys.secretOrKey,
+                      {
+                        expiresIn: 31556926, // 1 year in seconds
+                      },
+                      (err, token) => {
+                        if (err) {
+                          res.status(400).json({ errors: err });
+                        }
+
+                        res.json({
+                          success: true,
+                          token: "Bearer " + token,
+                        });
+                      }
+                    );
+                  } else {
+                    return res
+                      .status(400)
+                      .json({ errors: { password: "Password incorrect" } });
+                  }
+                });
+              }
             }
-          });
-        }
+          }
+        );
       }
     }
-  );
+  });
 };
 
 getMerchantCustomers = async (req, res) => {

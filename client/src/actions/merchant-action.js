@@ -1,15 +1,3 @@
-export const CREATE_USER = "CREATE_USER";
-export const mCreateUser = (user) => ({
-  type: CREATE_USER,
-  payload: { user },
-});
-
-export const LOGIN_USER = "LOGIN_USER";
-export const mLoginUser = (user) => ({
-  type: LOGIN_USER,
-  payload: { user },
-});
-
 export const USER_LOADING_PROGRESS = "USER_LOADING_PROGRESS";
 export const mUserLoadingProgress = () => ({
   type: USER_LOADING_PROGRESS,
@@ -39,6 +27,36 @@ export const mConnError = (err) => ({
 
 export const MSET_CURRENT_USER = "MSET_CURRENT_USER";
 export const mSetCurrentUser = (merchantData) => ({
-  type:MSET_CURRENT_USER,
+  type: MSET_CURRENT_USER,
   payload: { merchantData },
-})
+});
+
+export const MADD_PRODUCT = "MADD_PRODUCT";
+export const mAddProduct = (product) => ({
+  type: MADD_PRODUCT,
+  payload: { product },
+});
+
+export const MUPDATE_PRODUCT = "MUPDATE_PRODUCT";
+export const mUpdateProduct = (product) => ({
+  type: MUPDATE_PRODUCT,
+  payload: { product },
+});
+
+export const MADD_STORY = "MADD_STORY";
+export const mAddStory = (story) => ({
+  type: MADD_STORY,
+  payload: { story },
+});
+
+export const MGET_ORDERS = "MGET_ORDERS";
+export const mGetOrders = (orders) => ({
+  type: MGET_ORDERS,
+  payload: { orders },
+});
+
+export const MUPDATE_ORDER_STATUS = "MUPDATE_ORDER_STATUS";
+export const mUpdateOrderStatus = (order) => ({
+  type: MUPDATE_ORDER_STATUS,
+  payload: { order },
+});

@@ -4,6 +4,9 @@ import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import Typography from "@material-ui/core/Typography";
 
+import { connect } from "react-redux";
+import { getMerchantData } from "../../../selectors/customer-selector";
+
 const useStyles = makeStyles((theme) => ({
   root: {
     height: "100%",
@@ -39,7 +42,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const COurStory = () => {
+const COurStory = ({ merchantData }) => {
   const classes = useStyles();
 
   return (
@@ -61,21 +64,9 @@ const COurStory = () => {
 
         <Box>
           <Typography className={classes.storycontent} variant="body1">
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-            eiusmod tempor incididunt ut labore et dolore magna aliqua. Aliquet
-            enim tortor at auctor urna nunc id cursus metus. Turpis egestas
-            pretium aenean pharetra magna ac placerat vestibulum. Non quam lacus
-            suspendisse faucibus interdum posuere lorem. Sed viverra tellus in
-            hac habitasse platea dictumst vestibulum rhoncus. Dui vivamus arcu
-            felis bibendum. Sem nulla pharetra diam sit amet nisl. Viverra orci
-            sagittis eu volutpat. Egestas diam in arcu cursus euismod quis
-            viverra nibh. Diam phasellus vestibulum lorem sed risus ultricies
-            tristique nulla. Est lorem ipsum dolor sit amet consectetur
-            adipiscing. Dui vivamus arcu felis bibendum. Sem nulla pharetra diam
-            sit amet nisl. Viverra orci sagittis eu volutpat. Egestas diam in
-            arcu cursus euismod quis viverra nibh. Diam phasellus vestibulum
-            lorem sed risus ultricies tristique nulla. Est lorem ipsum dolor sit
-            amet consectetur adipiscing.
+            <Box
+              dangerouslySetInnerHTML={{ __html: merchantData.story.content }}
+            ></Box>
           </Typography>
         </Box>
       </Grid>
@@ -88,8 +79,9 @@ const COurStory = () => {
         xs={12}
         className={classes.rightbox}
       >
+        {/* https://images.unsplash.com/photo-1499482125586-91609c0b5fd4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=900&q=60 */}
         <img
-          src="https://images.unsplash.com/photo-1499482125586-91609c0b5fd4?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=900&q=60"
+          src={merchantData.story.imageUrl}
           className={classes.rightimg}
           alt="merchant_owner"
         />
@@ -98,4 +90,10 @@ const COurStory = () => {
   );
 };
 
-export default COurStory;
+const mapStateToProps = (state) => ({
+  merchantData: getMerchantData(state),
+});
+
+const mapDispatchToProps = (dispatch) => ({});
+
+export default connect(mapStateToProps, mapDispatchToProps)(COurStory);

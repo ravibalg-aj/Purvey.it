@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import Typography from "@material-ui/core/Typography";
 import Box from "@material-ui/core/Box";
 import { makeStyles } from "@material-ui/core/styles";
 import { connect } from "react-redux";
+import SearchIcon from "@material-ui/icons/Search";
 
 import CTopPane from "../homepage/toppane/ctoppane";
 import COrderList from "./corderlist";
@@ -13,6 +14,7 @@ import {
   logoutUser,
   setCurrentUser,
   loadOrderDetails,
+  updateOrderStatus
 } from "../../../thunks/customer-thunk";
 import {
   getMerchantData,
@@ -39,7 +41,6 @@ const useStyles = makeStyles((theme) => ({
   content: {
     flexGrow: 1,
     boxShadow: "inset 0 0 0 2000px rgba(0, 0, 0, 0.05)",
-
   },
   footer: {
     flexShrink: 0,
@@ -68,9 +69,12 @@ const COrders = ({
   customerCart,
   runOnLoadForOrder,
   orderDetails,
+  onCancelButtonClick
 }) => {
   useEffect(() => {
-    runOnLoad(match.params.id);
+    if (isEmpty(merchantData)) {
+      runOnLoad(match.params.id);
+    }
     // Check for token to keep user logged in
     if (localStorage.cjwtToken) {
       // Set auth token header auth
@@ -79,17 +83,20 @@ const COrders = ({
       // Decode token and get user info and exp
       const decoded = jwt_decode(token);
       // Set user and isAuthenticated
-      csetCurrentUser(decoded.id);
-      runOnLoadForOrder(match.params.id, decoded.id);
-      // Check for expired token
-      const currentTime = Date.now() / 1000; // to get in milliseconds
-      if (decoded.exp < currentTime) {
-        // Logout user
-        clogoutUser();
-        // Redirect to login
+      if (decoded.brandName === match.params.id) {
+        csetCurrentUser(decoded.id);
+        runOnLoadForOrder(match.params.id, decoded.id);
+        console.log("GGEZ");
+        // Check for expired token
+        const currentTime = Date.now() / 1000; // to get in milliseconds
+        if (decoded.exp < currentTime) {
+          // Logout user
+          clogoutUser();
+          // Redirect to login
+        }
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classes = useStyles();
 
@@ -103,18 +110,38 @@ const COrders = ({
               customProps={{ height: "11vh", bg: "none" }}
             />
           </Grid>
-          {!isEmpty(orderDetails) ? (
+          {customer.isAuthenticated ? (
+            !isEmpty(orderDetails) ? (
+              <Grid item xs={12}>
+                <Box className={classes.firstphrase}>
+                  <Typography variant="h6">{"ORDER DETAILS"}</Typography>
+                </Box>
+              </Grid>
+            ) : (
+              <Grid item xs={12}>
+                <Box className={classes.firstphrase}>
+                  <Typography variant="h6">
+                    {"Looks like there is no history of orders found!"}{" "}
+                    <SearchIcon />
+                  </Typography>
+                </Box>
+              </Grid>
+            )
+          ) : (
             <Grid item xs={12}>
               <Box className={classes.firstphrase}>
-                <Typography variant="h6">{"ORDER DETAILS"}</Typography>
+                <Typography variant="h6">
+                  {"Login to view your orders!"}
+                </Typography>
               </Box>
             </Grid>
-          ) : (
-            ""
           )}
         </Grid>
         <Grid item xs={12}>
-          <COrderList orders={orderDetails} />
+        {orderDetails.map(order => (
+          <COrderList order={order} onCancelButtonClick={onCancelButtonClick} />
+        ))}
+          {/* <COrderList orders={orderDetails} onCancelButtonClick={onCancelButtonClick} /> */}
         </Grid>
       </Box>
       <Box className={classes.footer}>
@@ -149,6 +176,7 @@ const mapDispatchToProps = (dispatch) => ({
   csetCurrentUser: (id) => dispatch(setCurrentUser(id)),
   runOnLoadForOrder: (merchantId, customerId) =>
     dispatch(loadOrderDetails(merchantId, customerId)),
+    onCancelButtonClick: (orderId,status) => dispatch(updateOrderStatus(orderId,status))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(COrders);

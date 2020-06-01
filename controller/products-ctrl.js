@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 
 //Validator
 const validateProductInput = require("../validators/product-check");
@@ -6,13 +7,25 @@ const validateProductInput = require("../validators/product-check");
 const merchants = require("../models/merchants");
 const products = require("../models/products");
 const customers = require("../models/customers");
+
 const isEmpty = require("is-empty");
 const _ = require("lodash");
+
+const { Storage } = require("@google-cloud/storage");
+const storage = new Storage({
+  projectId: "purvey-it-product-images",
+  keyFilename:
+    "./config/purvey-it-product-images-firebase-adminsdk-z15lo-45dd66e14b.json",
+});
+
+const bucket = storage.bucket("purvey-it-product-images.appspot.com");
+
 createProduct = async (req, res) => {
   body = req.body;
+  files = req.files.imageUrls;
   merchantId = req.params.id;
 
-  const { errors, isValid } = validateProductInput(body);
+  const { errors, isValid } = validateProductInput(body, files);
 
   if (!isValid) {
     res.status(400).json({ errors: errors });
@@ -24,29 +37,65 @@ createProduct = async (req, res) => {
       if (!merchant) {
         res.status(400).json({ errors: "Merchant not found!" });
       } else {
-        const newProduct = new products({
-          name: body.name,
-          description: body.description,
-          price: body.price,
-          imageUrls: body.imageUrls,
+        uploadAll(files).then((results) => {
+          // console.log(results);
+          const newProduct = new products({
+            name: body.name,
+            description: body.description,
+            price: body.price,
+            imageUrls: results,
+          });
+
+          merchant.products.push(newProduct);
+
+          merchant
+            .save()
+            .then((merchant) => res.json({ data: newProduct }))
+            .catch((err) => res.status(400).json({ errors: err }));
         });
-
-        merchant.products.push(newProduct);
-
-        merchant
-          .save()
-          .then((merchant) => res.json({ data: newProduct }))
-          .catch((err) => res.status(400).json({ errors: err }));
       }
     });
   }
+};
+
+uploadAll = (files) => {
+  return Promise.all(files.map((file) => uploadHelper(file)));
+};
+
+uploadHelper = (file) => {
+  return new Promise((resolve) => {
+    // Create new blob in the bucket referencing the file
+    const blob = bucket.file(file.originalname);
+
+    // Create writable stream and specifying file mimetype
+    const blobWriter = blob.createWriteStream({
+      metadata: {
+        contentType: file.mimetype,
+      },
+    });
+
+    blobWriter.on("error", (err) => console.log(err));
+
+    blobWriter.on("finish", () => {
+      // Assembling public URL for accessing the file via HTTP
+      const publicUrl = `https://firebasestorage.googleapis.com/v0/b/${
+        bucket.name
+      }/o/${encodeURI(blob.name)}?alt=media`;
+      // Return the file name and its public URL
+
+      resolve(publicUrl);
+    });
+
+    // When there is no more data to be consumed from the stream
+    blobWriter.end(file.buffer);
+  });
 };
 
 addWishlist = async (req, res) => {
   body = req.body;
   customerId = req.params.id;
 
-  const { errors, isValid } = validateProductInput(body);
+  const { errors, isValid } = validateProductInput(body, body.imageUrls);
 
   if (!isValid) {
     res.status(400).json({ errors: errors });
@@ -131,9 +180,45 @@ removeFromCart = async (req, res) => {
     }
   });
 };
+
+updateProduct = async (req, res) => {
+  const productId = req.params.id;
+  const body = req.body;
+
+  const { errors, isValid } = validateProductInput(body, ["balg"]);
+
+  if (!isValid) {
+    res.status(400).json({ errors: errors });
+  } else {
+    merchants.findOneAndUpdate(
+      { "products._id": productId },
+      {
+        $set: {
+          "products.$.name": body.name,
+          "products.$.description": body.description,
+          "products.$.price": body.price,
+        },
+      },
+      { new: true },
+      (err, result) => {
+        if (err) {
+          res.status(400).json({ errors: err });
+        }
+        if (!result) {
+          res.status(400).json({ errors: "Nothing Updated" });
+        } else {
+          res.json({
+            data: result.products.filter((p) => String(p._id) === productId)[0],
+          });
+        }
+      }
+    );
+  }
+};
 module.exports = {
   createProduct,
   addWishlist,
   getSpecificProduct,
   removeFromCart,
+  updateProduct,
 };

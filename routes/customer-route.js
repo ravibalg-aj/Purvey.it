@@ -14,7 +14,7 @@ router.post("/customer/register/:id", customersCtrl.createCustomer);
 // @access Public
 router.post("/customer/login/:id", customersCtrl.doLogin);
 
-// @route GET api/merchant/customer/{merchantID}}
+// @route GET api/customer/merchant//{merchantID}}
 // @desc All Customer/mercahnt info
 // @access Public
 router.get(

@@ -18,6 +18,7 @@ import {
 import {
   getMerchantData,
   getCustomer,
+  getCustomerData,
 } from "../../../selectors/customer-selector";
 
 import setAuthToken from "../../../utils/setAuthToken";
@@ -53,28 +54,35 @@ const CShop = ({
   csetCurrentUser,
   customer,
   merchantData,
+  customerData,
 }) => {
   useEffect(() => {
-    runOnLoad(match.params.id);
-    // Check for token to keep user logged in
-    if (localStorage.cjwtToken) {
-      // Set auth token header auth
-      const token = localStorage.cjwtToken;
-      setAuthToken(token);
-      // Decode token and get user info and exp
-      const decoded = jwt_decode(token);
-      console.log(decoded);
-      // Set user and isAuthenticated
-      csetCurrentUser(decoded.id);
-      // Check for expired token
-      const currentTime = Date.now() / 1000; // to get in milliseconds
-      if (decoded.exp < currentTime) {
-        // Logout user
-        clogoutUser();
-        // Redirect to login
+    if (isEmpty(merchantData)) {
+      runOnLoad(match.params.id);
+    }
+    if (isEmpty(customerData)) {
+      // Check for token to keep user logged in
+      if (localStorage.cjwtToken) {
+        // Set auth token header auth
+        const token = localStorage.cjwtToken;
+        setAuthToken(token);
+        // Decode token and get user info and exp
+        const decoded = jwt_decode(token);
+        console.log(decoded);
+        // Set user and isAuthenticated
+        if (decoded.brandName === match.params.id) {
+          csetCurrentUser(decoded.id);
+          // Check for expired token
+          const currentTime = Date.now() / 1000; // to get in milliseconds
+          if (decoded.exp < currentTime) {
+            // Logout user
+            clogoutUser();
+            // Redirect to login
+          }
+        }
       }
     }
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   const classes = useStyles();
 
@@ -131,6 +139,7 @@ const CShop = ({
 const mapStateToProps = (state) => ({
   merchantData: getMerchantData(state),
   customer: getCustomer(state),
+  customerData: getCustomerData(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({

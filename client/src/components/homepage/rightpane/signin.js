@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
@@ -15,12 +15,11 @@ import {
 } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
-import {withRouter} from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import history from "../../../utils/history"
 
-import {loginUser} from '../../../thunks/merchant-thunk'
-import {getMerchantData,getErrors} from '../../../selectors/merchant-selector' 
+import { loginUser } from "../../../thunks/merchant-thunk";
+import { getErrors } from "../../../selectors/merchant-selector";
 
 const formTheme = createMuiTheme({
   palette: {
@@ -54,7 +53,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignIn = ({merchant, onSubmitPressed, errors}) => {
+const SignIn = ({ onSubmitPressed, errors }) => {
   const classes = useStyles();
 
   const [email, setEmail] = useState("");
@@ -67,15 +66,8 @@ const SignIn = ({merchant, onSubmitPressed, errors}) => {
     };
 
     console.log(user);
-    onSubmitPressed(user)
+    onSubmitPressed(user);
   };
-
-  
-  useEffect(() => {
-    if(merchant._id){
-      history.push(`/m/${merchant.brandName}`)
-    }
-  },[merchant])
 
   return (
     <ThemeProvider theme={formTheme}>
@@ -131,10 +123,6 @@ const SignIn = ({merchant, onSubmitPressed, errors}) => {
               error={errors.password ? true : false}
               helperText={errors.password}
             />
-            <FormControlLabel
-              control={<Checkbox value="remember" color="primary" />}
-              label="Remember me"
-            />
             <Button
               type="submit"
               fullWidth
@@ -145,17 +133,12 @@ const SignIn = ({merchant, onSubmitPressed, errors}) => {
               Sign In
             </Button>
             <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+              <Grid item>
+                <Link href="/signup" variant="body2">
+                  {"Don't have an account? Sign Up"}
+                </Link>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Link href="/signup" variant="body2">
-                {"Don't have an account? Sign Up"}
-              </Link>
-            </Grid>
-          </Grid>
           </form>
         </div>
       </Container>
@@ -164,14 +147,11 @@ const SignIn = ({merchant, onSubmitPressed, errors}) => {
 };
 
 const mapStateToProps = (state) => ({
-  merchant:getMerchantData(state),
-  errors:getErrors(state)
+  errors: getErrors(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
   onSubmitPressed: (user) => dispatch(loginUser(user)),
 });
 
-
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(SignIn));
-

@@ -99,6 +99,14 @@ changeShippingStatus = async (req, res) => {
             res.json({ data: shipping });
           })
           .catch((err) => res.status(400).json({ errors: err }));
+      } else if (status === "3") {
+        shipping.status = "ORDER_CANCELLED";
+        shipping
+          .save()
+          .then((shipping) => {
+            res.json({ data: shipping });
+          })
+          .catch((err) => res.status(400).json({ errors: err }));
       } else {
         res.status(400).json({ errors: "Status code is not valid" });
       }
@@ -128,6 +136,8 @@ makeShippingIssue = async (req, res) => {
     }
   });
 };
+
+
 module.exports = {
   makeShipping,
   changeShippingStatus,

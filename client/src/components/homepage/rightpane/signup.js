@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
-import Link from '@material-ui/core/Link';
+import Link from "@material-ui/core/Link";
 import Grid from "@material-ui/core/Grid";
 import FavoriteTwoToneIcon from "@material-ui/icons/FavoriteTwoTone";
 import Typography from "@material-ui/core/Typography";
@@ -13,13 +13,15 @@ import {
 } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 
-
-import {withRouter} from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import { connect } from "react-redux";
-import history from "../../../utils/history"
+import history from "../../../utils/history";
 
-import {registerUser} from '../../../thunks/merchant-thunk'
-import {getMerchantData,getErrors} from '../../../selectors/merchant-selector' 
+import { registerUser } from "../../../thunks/merchant-thunk";
+import {
+  getMerchantData,
+  getErrors,
+} from "../../../selectors/merchant-selector";
 
 const formTheme = createMuiTheme({
   palette: {
@@ -53,7 +55,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-const SignUp = ({merchant, onSubmitPressed, errors}) => {
+const SignUp = ({ merchant, onSubmitPressed, errors }) => {
   const classes = useStyles();
 
   const [brandName, setBrandName] = useState("");
@@ -69,8 +71,8 @@ const SignUp = ({merchant, onSubmitPressed, errors}) => {
       password2: password2,
     };
 
-    console.log(history)
-    onSubmitPressed(newUser,history);
+    console.log(history);
+    onSubmitPressed(newUser, history);
   };
   return (
     <ThemeProvider theme={formTheme}>
@@ -175,17 +177,12 @@ const SignUp = ({merchant, onSubmitPressed, errors}) => {
               Sign Up
             </Button>
             <Grid container>
-            <Grid item xs>
-              <Link href="#" variant="body2">
-                Forgot password?
-              </Link>
+              <Grid item>
+                <Link href="/signin" variant="body2">
+                  {"Already have an account? Sign In"}
+                </Link>
+              </Grid>
             </Grid>
-            <Grid item>
-              <Link href="/signin" variant="body2">
-                {"Already have an account? Sign In"}
-              </Link>
-            </Grid>
-          </Grid>
           </form>
         </div>
       </Container>
@@ -194,13 +191,13 @@ const SignUp = ({merchant, onSubmitPressed, errors}) => {
 };
 
 const mapStateToProps = (state) => ({
-  merchant:getMerchantData(state),
-  errors:getErrors(state)
+  merchant: getMerchantData(state),
+  errors: getErrors(state),
 });
 
 const mapDispatchToProps = (dispatch) => ({
-  onSubmitPressed: (newUser,history) => dispatch(registerUser(newUser,history)),
+  onSubmitPressed: (newUser, history) =>
+    dispatch(registerUser(newUser, history)),
 });
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(withRouter(SignUp));
