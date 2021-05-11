@@ -36,7 +36,7 @@
   "devDependencies": {
     "@material-ui/lab": "^4.0.0-alpha.53",
     "cors": "^2.8.5",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "styled-components": "^5.1.0"
   }
 }
